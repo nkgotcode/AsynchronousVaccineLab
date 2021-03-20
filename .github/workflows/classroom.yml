@@ -1,0 +1,15 @@
+    name: GitHub Classroom Workflow
+
+    on: [push]
+
+    jobs:
+      build:
+        name: Autograding
+        runs-on: ubuntu-20.04
+        steps:
+          - uses: actions/checkout@v2
+          - name: Compile submission
+            run: mvn compile
+          - name: Run autograder
+            run: ./autograder.run
+          - uses: education/autograding@v1

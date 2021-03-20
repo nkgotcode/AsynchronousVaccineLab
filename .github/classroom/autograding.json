@@ -1,0 +1,74 @@
+{
+  "tests": [
+    {
+      "name": "Test 1",
+      "setup": "",
+      "run": "grep 'Failures: 0, Errors: 0' target/surefire-reports/edu.uic.cs494.a4.Test01_AddSingleClinic.txt",
+      "input": "",
+      "output": "",
+      "comparison": "included",
+      "timeout": 10,
+      "points": 10
+    },
+    {
+      "name": "Test 2",
+      "setup": "",
+      "run": "grep 'Failures: 0, Errors: 0' target/surefire-reports/edu.uic.cs494.a4.Test02_GetSingleClinic.txt",
+      "input": "",
+      "output": "",
+      "comparison": "included",
+      "timeout": 10,
+      "points": 10
+    },
+    {
+      "name": "Test 3",
+      "setup": "",
+      "run": "grep 'Failures: 0, Errors: 0' target/surefire-reports/edu.uic.cs494.a4.Test03_AsyncProgress.txt",
+      "input": "",
+      "output": "",
+      "comparison": "included",
+      "timeout": 10,
+      "points": 10
+    },
+    {
+      "name": "Test 4",
+      "setup": "",
+      "run": "grep 'Failures: 0, Errors: 0' target/surefire-reports/edu.uic.cs494.a4.Test04_AdministerDiscardSingleClinic.txt",
+      "input": "",
+      "output": "",
+      "comparison": "included",
+      "timeout": 10,
+      "points": 10
+    },
+    {
+      "name": "Test 5",
+      "setup": "",
+      "run": "grep 'Failures: 0, Errors: 0' target/surefire-reports/edu.uic.cs494.a4.Test05_ManyClinics.txt",
+      "input": "",
+      "output": "",
+      "comparison": "included",
+      "timeout": 10,
+      "points": 10
+    },
+    {
+      "name": "Test 6",
+      "setup": "",
+      "run": "grep 'Failures: 0, Errors: 0' target/surefire-reports/edu.uic.cs494.a4.Test06_MultipleClientThreads.txt",
+      "input": "",
+      "output": "",
+      "comparison": "included",
+      "timeout": 10,
+      "points": 10
+    },
+    {
+      "name": "Test 7",
+      "setup": "",
+      "run": "grep 'Failures: 0, Errors: 0' target/surefire-reports/edu.uic.cs494.a4.Test07_Move.txt",
+      "input": "",
+      "output": "",
+      "comparison": "included",
+      "timeout": 10,
+      "points": 10
+    }
+  ]
+}
