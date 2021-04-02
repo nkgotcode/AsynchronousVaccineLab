@@ -71,15 +71,42 @@ public class SolutionClinic extends Clinic<SolutionDose> {
         this.addDoses(doses);
         result.setResult(true);
     }
-
     @Override
     protected void use(Set<SolutionDose> doses, Result<Boolean> result) {
+        Set<SolutionDose> readyDoses = this.getReadyDoses();
+        if (!readyDoses.containsAll(doses)) {
+            result.setResult(false);
+            return;
+        }
 
+        for (var d : doses) {
+            if (d.status == VaccineDose.Status.DISCARDED) {
+                result.setResult(false);
+                return;
+            }
+            if (d.getStatus() == VaccineDose.Status.READY) {
+                d.status = VaccineDose.Status.USED;
+            }
+        }
+        this.removeDoses(doses);
+        result.setResult(true);
     }
 
     @Override
     protected void discard(Set<SolutionDose> doses, Result<Boolean> result) {
+        Set<SolutionDose> readyDoses = this.getReadyDoses();
+        if (!readyDoses.containsAll(doses)) {
+            result.setResult(false);
+            return;
+        }
 
+        for (var d : doses) {
+            if (d.getStatus() == VaccineDose.Status.READY) {
+                d.status = VaccineDose.Status.DISCARDED;
+            }
+        }
+        this.removeDoses(doses);
+        result.setResult(true);
     }
 
     @Override

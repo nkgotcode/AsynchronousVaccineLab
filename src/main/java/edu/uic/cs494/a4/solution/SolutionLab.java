@@ -37,12 +37,20 @@ public class SolutionLab extends Lab<SolutionClinic,SolutionDose> {
 
     @Override
     public boolean administerVaccineDoses(SolutionClinic clinic, Set<SolutionDose> vaccineDoses) {
-        return false;
+        SolutionResult<Boolean> result = new SolutionResult<>();
+        Action<Set<SolutionDose>,Boolean> action = new Action<>(Action.Direction.USE,vaccineDoses,result);
+        clinic.submitAction(action);
+        auditList.addLast(action);
+        return result.getResult();
     }
 
     @Override
     public boolean discardVaccineDoses(SolutionClinic clinic, Set<SolutionDose> vaccineDoses) {
-        return false;
+        SolutionResult<Boolean> result = new SolutionResult<>();
+        Action<Set<SolutionDose>,Boolean> action = new Action<>(Action.Direction.DISCARD,vaccineDoses,result);
+        clinic.submitAction(action);
+        auditList.addLast(action);
+        return result.getResult();
     }
 
     @Override
@@ -83,9 +91,6 @@ public class SolutionLab extends Lab<SolutionClinic,SolutionDose> {
         Action<SolutionClinic,Set<SolutionDose>> action = new Action<>(Action.Direction.CONTENTS,clinic,result);
         clinic.submitAction(action);
         auditList.addLast(action);
-
-//        clinic.actions.addLast(action);
-
         return result.getResult();
     }
 
@@ -96,18 +101,27 @@ public class SolutionLab extends Lab<SolutionClinic,SolutionDose> {
         auditList.addLast(asyncAct);
         clinic.submitAction(asyncAct);
         auditList.addLast(asyncAct);
-        //while (!ret.isReady()) {}
         return ret;
     }
 
     @Override
     public Result<Boolean> administerVaccineDosesAsync(SolutionClinic clinic, Set<SolutionDose> vaccineDoses) {
-        return null;
+        SolutionResult<Boolean> ret = new SolutionResult<>();
+        Action<Set<SolutionDose>,Boolean> asyncAct = new Action<>(Action.Direction.USE,vaccineDoses,ret);
+        auditList.addLast(asyncAct);
+        clinic.submitAction(asyncAct);
+        auditList.addLast(asyncAct);
+        return ret;
     }
 
     @Override
     public Result<Boolean> discardVaccineDosesAsync(SolutionClinic clinic, Set<SolutionDose> vaccineDoses) {
-        return null;
+        SolutionResult<Boolean> ret = new SolutionResult<>();
+        Action<Set<SolutionDose>,Boolean> asyncAct = new Action<>(Action.Direction.DISCARD,vaccineDoses,ret);
+        auditList.addLast(asyncAct);
+        clinic.submitAction(asyncAct);
+        auditList.addLast(asyncAct);
+        return ret;
     }
 
     @Override
@@ -128,11 +142,7 @@ public class SolutionLab extends Lab<SolutionClinic,SolutionDose> {
         Result<Set<SolutionDose>> ret = new SolutionResult<>();
         Action<SolutionClinic,Set<SolutionDose>> action = new Action<>(Action.Direction.CONTENTS,clinic,ret);
         clinic.submitAction(action);
-//        DoseClinicAction dca = new DoseClinicAction(action,null);
         auditList.addLast(action);
-//        ret.setResult(getVaccineDoses(clinic));
-//        ret.getResult().
-//        while (!ret.isReady()) {}
         return ret;
     }
 
