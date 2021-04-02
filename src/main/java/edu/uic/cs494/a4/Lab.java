@@ -1,10 +1,12 @@
 package edu.uic.cs494.a4;
 
+import edu.uic.cs494.a4.solution.SolutionLab;
+
 import java.util.Set;
 
 public abstract class Lab<C extends Clinic, V extends VaccineDose> {
     public static Lab<?, ?> createLab() {
-        throw new Error("Not implemented");
+        return new SolutionLab();
     }
 
     public abstract C createClinic(int capacity);
