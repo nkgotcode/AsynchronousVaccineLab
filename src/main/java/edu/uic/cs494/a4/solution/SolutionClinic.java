@@ -11,7 +11,7 @@ import java.util.concurrent.*;
 
 public class SolutionClinic extends Clinic<SolutionDose> {
     final int capacity;
-    final ConcurrentLinkedDeque<Action> actions = new ConcurrentLinkedDeque<>();
+    final LinkedList<Action> actions = new LinkedList<>();
 
     public SolutionClinic(int capacity) {
         this.capacity = capacity;
@@ -21,11 +21,7 @@ public class SolutionClinic extends Clinic<SolutionDose> {
     public void submitAction(Action a) {
         synchronized (actions) {
             actions.addLast(a);
-            if (a.getResult() instanceof SolutionResult) {
-                actions.notifyAll();
-                return;
-            }
-            actions.notify();
+            actions.notifyAll();
         }
     }
 
@@ -33,7 +29,7 @@ public class SolutionClinic extends Clinic<SolutionDose> {
     protected Action getAction() {
         while (true) {
             synchronized (actions) {
-                if (actions.peekLast() == null) {
+                if (actions.isEmpty()) {
                     try {
                         actions.wait();
                     } catch (InterruptedException e) {
@@ -41,7 +37,8 @@ public class SolutionClinic extends Clinic<SolutionDose> {
                     }
                     continue;
                 }
-                return actions.removeFirst();
+                var ret = actions.removeFirst();
+                return ret;
             }
         }
     }
@@ -49,11 +46,7 @@ public class SolutionClinic extends Clinic<SolutionDose> {
     @Override
     protected void add(Set<SolutionDose> doses, Result<Boolean> result) {
         Set<SolutionDose> readyDoses = this.getReadyDoses();
-        if (readyDoses.equals(doses)) {
-            result.setResult(false);
-            return;
-        }
-        if (this.getReadyDoses().size() + doses.size() > this.capacity) {
+        if (readyDoses.size() + doses.size() > this.capacity) {
             result.setResult(false);
             return;
         }

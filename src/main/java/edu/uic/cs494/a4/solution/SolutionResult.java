@@ -6,8 +6,8 @@ public class SolutionResult<T> extends Result<T> {
     @Override
     public void setResult(T result) {
         synchronized (this) {
-            if (!this.isReady()) super.set(result);
-            this.notify();
+            super.set(result);
+            this.notifyAll();
         }
     }
 

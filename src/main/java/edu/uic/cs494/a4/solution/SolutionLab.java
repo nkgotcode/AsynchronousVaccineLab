@@ -6,13 +6,9 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.Callable;
-import java.util.concurrent.Future;
-import java.util.concurrent.FutureTask;
 
 public class SolutionLab extends Lab<SolutionClinic,SolutionDose> {
     LinkedList<SolutionClinic> clinics = new LinkedList<>();
-    LinkedList<Action> auditList = new LinkedList<>();
 
     @Override
     public SolutionClinic createClinic(int capacity) {
@@ -31,7 +27,6 @@ public class SolutionLab extends Lab<SolutionClinic,SolutionDose> {
         SolutionResult<Boolean> result = new SolutionResult<>();
         Action<Set<SolutionDose>,Boolean> action = new Action<>(Action.Direction.ADD,vaccineDoses,result);
         clinic.submitAction(action);
-        auditList.addLast(action);
         return result.getResult();
     }
 
@@ -40,7 +35,6 @@ public class SolutionLab extends Lab<SolutionClinic,SolutionDose> {
         SolutionResult<Boolean> result = new SolutionResult<>();
         Action<Set<SolutionDose>,Boolean> action = new Action<>(Action.Direction.USE,vaccineDoses,result);
         clinic.submitAction(action);
-        auditList.addLast(action);
         return result.getResult();
     }
 
@@ -49,7 +43,6 @@ public class SolutionLab extends Lab<SolutionClinic,SolutionDose> {
         SolutionResult<Boolean> result = new SolutionResult<>();
         Action<Set<SolutionDose>,Boolean> action = new Action<>(Action.Direction.DISCARD,vaccineDoses,result);
         clinic.submitAction(action);
-        auditList.addLast(action);
         return result.getResult();
     }
 
@@ -60,24 +53,24 @@ public class SolutionLab extends Lab<SolutionClinic,SolutionDose> {
 
     @Override
     public Set<SolutionDose> getVaccineDoses() {
-        List<Result<Set<SolutionDose>>> resultList = new LinkedList<>();
-        SolutionResult<Set<SolutionDose>> result = new SolutionResult<>();
-        Set<SolutionDose> ret = new HashSet<>();
+        List<SolutionResult<Set<SolutionDose>>> resultList = new LinkedList<>();
+
         for (var x : clinics) {
+            SolutionResult<Set<SolutionDose>> result = new SolutionResult<>();
             Action<SolutionClinic,Set<SolutionDose>> action = new Action<>(Action.Direction.CONTENTS,x,result);
             x.submitAction(action);
-            auditList.addLast(action);
+            resultList.add(result);
         }
         Result<Set<SolutionDose>> waitResult = new Result<>() {
             @Override
-            public void setResult(Set<SolutionDose> result) {
-                throw new Error();
-            }
+            public void setResult(Set<SolutionDose> result) { throw new Error(); }
 
             @Override
             public Set<SolutionDose> getResult() {
+                Set<SolutionDose> ret = new HashSet<>();
                 for (var rs : resultList) {
-                    ret.addAll(rs.getResult());
+                    var tmp = rs.getResult();
+                    ret.addAll(tmp);
                 }
                 return ret;
             }
@@ -90,7 +83,6 @@ public class SolutionLab extends Lab<SolutionClinic,SolutionDose> {
         SolutionResult<Set<SolutionDose>> result = new SolutionResult<>();
         Action<SolutionClinic,Set<SolutionDose>> action = new Action<>(Action.Direction.CONTENTS,clinic,result);
         clinic.submitAction(action);
-        auditList.addLast(action);
         return result.getResult();
     }
 
@@ -98,9 +90,7 @@ public class SolutionLab extends Lab<SolutionClinic,SolutionDose> {
     public Result<Boolean> addVaccineDosesAsync(SolutionClinic clinic, Set<SolutionDose> vaccineDoses) {
         SolutionResult<Boolean> ret = new SolutionResult<>();
         Action<Set<SolutionDose>,Boolean> asyncAct = new Action<>(Action.Direction.ADD,vaccineDoses,ret);
-        auditList.addLast(asyncAct);
         clinic.submitAction(asyncAct);
-        auditList.addLast(asyncAct);
         return ret;
     }
 
@@ -108,9 +98,7 @@ public class SolutionLab extends Lab<SolutionClinic,SolutionDose> {
     public Result<Boolean> administerVaccineDosesAsync(SolutionClinic clinic, Set<SolutionDose> vaccineDoses) {
         SolutionResult<Boolean> ret = new SolutionResult<>();
         Action<Set<SolutionDose>,Boolean> asyncAct = new Action<>(Action.Direction.USE,vaccineDoses,ret);
-        auditList.addLast(asyncAct);
         clinic.submitAction(asyncAct);
-        auditList.addLast(asyncAct);
         return ret;
     }
 
@@ -118,9 +106,7 @@ public class SolutionLab extends Lab<SolutionClinic,SolutionDose> {
     public Result<Boolean> discardVaccineDosesAsync(SolutionClinic clinic, Set<SolutionDose> vaccineDoses) {
         SolutionResult<Boolean> ret = new SolutionResult<>();
         Action<Set<SolutionDose>,Boolean> asyncAct = new Action<>(Action.Direction.DISCARD,vaccineDoses,ret);
-        auditList.addLast(asyncAct);
         clinic.submitAction(asyncAct);
-        auditList.addLast(asyncAct);
         return ret;
     }
 
@@ -131,44 +117,36 @@ public class SolutionLab extends Lab<SolutionClinic,SolutionDose> {
 
     @Override
     public Result<Set<SolutionDose>> getVaccineDosesAsync() {
-        Result<Set<SolutionDose>> ret = new SolutionResult<>();
-        ret.setResult(getVaccineDoses());
-        while (!ret.isReady()) {}
-        return ret;
+        List<SolutionResult<Set<SolutionDose>>> resultList = new LinkedList<>();
+
+        for (var x : clinics) {
+            SolutionResult<Set<SolutionDose>> result = new SolutionResult<>();
+            Action<SolutionClinic,Set<SolutionDose>> action = new Action<>(Action.Direction.CONTENTS,x,result);
+            x.submitAction(action);
+            resultList.add(result);
+        }
+        Result<Set<SolutionDose>> waitResult = new Result<>() {
+            @Override
+            public void setResult(Set<SolutionDose> result) { throw new Error(); }
+
+            @Override
+            public Set<SolutionDose> getResult() {
+                Set<SolutionDose> ret = new HashSet<>();
+                for (var rs : resultList) {
+                    var tmp = rs.getResult();
+                    ret.addAll(tmp);
+                }
+                return ret;
+            }
+        };
+        return waitResult;
     }
 
     @Override
     public Result<Set<SolutionDose>> getVaccineDosesAsync(SolutionClinic clinic) {
         Result<Set<SolutionDose>> ret = new SolutionResult<>();
-        Action<SolutionClinic,Set<SolutionDose>> action = new Action<>(Action.Direction.CONTENTS,clinic,ret);
-        clinic.submitAction(action);
-        auditList.addLast(action);
+        Action<SolutionClinic,Set<SolutionDose>> asyncAct = new Action<>(Action.Direction.CONTENTS,clinic,ret);
+        clinic.submitAction(asyncAct);
         return ret;
-    }
-
-//    public List<Action> audit (SolutionClinic clinic) {
-//        List<Action<SolutionClinic,Result>> ret = new LinkedList<>();
-//
-//        for (DoseClinicAction dca : auditList) {
-//
-//        }
-//    }
-
-    private static class DoseClinicAction {
-        final Action<SolutionClinic,Result> clinicAction;
-
-        final Action<SolutionDose,Result> doseAction;
-
-//        public DoseClinicAction(Action<SolutionClinic,Result> clinicAction) {
-//            this.clinicAction = clinicAction;
-//        }
-//        public DoseClinicAction(Action<SolutionDose,Result> doseAction) {
-//            this.doseAction = doseAction;
-//        }
-
-        public DoseClinicAction(Action<SolutionClinic,Result> clinicAction, Action<SolutionDose,Result> doseAction) {
-            this.clinicAction = clinicAction;
-            this.doseAction = doseAction;
-        }
     }
 }
