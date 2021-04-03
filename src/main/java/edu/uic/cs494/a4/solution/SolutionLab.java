@@ -48,7 +48,40 @@ public class SolutionLab extends Lab<SolutionClinic,SolutionDose> {
 
     @Override
     public boolean moveVaccineDoses(SolutionClinic from, SolutionClinic to, Set<SolutionDose> vaccineDoses) {
-        return false;
+        SolutionResult<Boolean> retFrom = new SolutionResult<>();
+        SolutionResult<Boolean> retTo = new SolutionResult<>();
+        Action<Set<SolutionDose>,Boolean> asyncFrom = new Action<>(Action.Direction.REMOVE,vaccineDoses,retFrom);
+        Action<Set<SolutionDose>,Boolean> asyncTo = new Action<>(Action.Direction.ADD,vaccineDoses,retTo);
+        from.submitAction(asyncFrom);
+        to.submitAction(asyncTo);
+
+        Result<Boolean> waitResult = new Result<>() {
+            @Override
+            public void setResult(Boolean result) { throw new Error(); }
+
+            @Override
+            public Boolean getResult() {
+                Boolean bF = retFrom.getResult();
+                Boolean bT = retTo.getResult();
+                if (!bF && bT) {
+                    Action<Set<SolutionDose>,Boolean> resend = new Action<>(Action.Direction.REMOVE,vaccineDoses,retTo);
+                    to.submitAction(resend);
+                    Result<Boolean> res = resend.getResult();
+                    return false;
+                }
+                if (bF && !bT) {
+                    Action<Set<SolutionDose>,Boolean> resend = new Action<>(Action.Direction.ADD,vaccineDoses,retFrom);
+                    from.submitAction(resend);
+                    Result<Boolean> res = resend.getResult();
+                    return false;
+                }
+                if (!(bF && bT)) {
+                    return false;
+                }
+                return true;
+            }
+        };
+        return waitResult.getResult();
     }
 
     @Override
@@ -112,7 +145,41 @@ public class SolutionLab extends Lab<SolutionClinic,SolutionDose> {
 
     @Override
     public Result<Boolean> moveVaccineDosesAsync(SolutionClinic from, SolutionClinic to, Set<SolutionDose> vaccineDoses) {
-        return null;
+        SolutionResult<Boolean> retFrom = new SolutionResult<>();
+        SolutionResult<Boolean> retTo = new SolutionResult<>();
+        Action<Set<SolutionDose>,Boolean> asyncFrom = new Action<>(Action.Direction.REMOVE,vaccineDoses,retFrom);
+        Action<Set<SolutionDose>,Boolean> asyncTo = new Action<>(Action.Direction.ADD,vaccineDoses,retTo);
+        from.submitAction(asyncFrom);
+        to.submitAction(asyncTo);
+
+        return new Result<>() {
+            @Override
+            public void setResult(Boolean result) { throw new Error(); }
+
+            @Override
+            public Boolean getResult() {
+                Boolean bF = retFrom.getResult();
+                Boolean bT = retTo.getResult();
+                if (!bF && bT) {
+                    Action<Set<SolutionDose>,Boolean> resend = new Action<>(Action.Direction.REMOVE,vaccineDoses,retTo);
+                    to.submitAction(resend);
+                    Result<Boolean> res = resend.getResult();
+                    if (!res.getResult()) { // if resend fails
+
+                    }
+                    return false;
+                }
+                if (bF && !bT) {
+                    Action<Set<SolutionDose>,Boolean> resend = new Action<>(Action.Direction.ADD,vaccineDoses,retFrom);
+                    from.submitAction(resend);
+                    return false;
+                }
+                if (!(bF && bT)) {
+                    return false;
+                }
+                return true;
+            }
+        };
     }
 
     @Override
@@ -125,7 +192,7 @@ public class SolutionLab extends Lab<SolutionClinic,SolutionDose> {
             x.submitAction(action);
             resultList.add(result);
         }
-        Result<Set<SolutionDose>> waitResult = new Result<>() {
+        return new Result<>() {
             @Override
             public void setResult(Set<SolutionDose> result) { throw new Error(); }
 
@@ -139,7 +206,6 @@ public class SolutionLab extends Lab<SolutionClinic,SolutionDose> {
                 return ret;
             }
         };
-        return waitResult;
     }
 
     @Override

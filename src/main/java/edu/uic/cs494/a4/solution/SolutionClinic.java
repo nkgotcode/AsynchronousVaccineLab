@@ -7,7 +7,6 @@ import edu.uic.cs494.a4.VaccineDose;
 
 import java.util.LinkedList;
 import java.util.Set;
-import java.util.concurrent.*;
 
 public class SolutionClinic extends Clinic<SolutionDose> {
     final int capacity;
@@ -46,6 +45,7 @@ public class SolutionClinic extends Clinic<SolutionDose> {
     @Override
     protected void add(Set<SolutionDose> doses, Result<Boolean> result) {
         Set<SolutionDose> readyDoses = this.getReadyDoses();
+
         if (readyDoses.size() + doses.size() > this.capacity) {
             result.setResult(false);
             return;
@@ -110,6 +110,12 @@ public class SolutionClinic extends Clinic<SolutionDose> {
 
     @Override
     protected void remove(Set<SolutionDose> doses, Result<Boolean> result) {
-
+        Set<SolutionDose> readyDoses = this.getReadyDoses();
+        if (!readyDoses.containsAll(doses)) {
+            result.setResult(false);
+            return;
+        }
+        this.removeDoses(doses);
+        result.setResult(true);
     }
 }
