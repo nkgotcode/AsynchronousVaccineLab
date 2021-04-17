@@ -63,22 +63,30 @@ public class SolutionLab extends Lab<SolutionClinic,SolutionDose> {
             public Boolean getResult() {
                 Boolean bF = retFrom.getResult();
                 Boolean bT = retTo.getResult();
+                if (bF && bT) { return true; }
+                if (!bF && !bT) { return false; }
                 if (!bF && bT) {
-                    Action<Set<SolutionDose>,Boolean> resend = new Action<>(Action.Direction.REMOVE,vaccineDoses,retTo);
-                    to.submitAction(resend);
-                    Result<Boolean> res = resend.getResult();
-                    return false;
+                    while (true) {
+                        SolutionResult<Boolean> resultAddBack = new SolutionResult<>();
+                        Action<Set<SolutionDose>, Boolean> resend = new Action<>(Action.Direction.REMOVE, vaccineDoses, resultAddBack);
+
+                        to.submitAction(resend);
+                        if (!resultAddBack.getResult())
+                            continue;
+                        return false;
+                    }
                 }
                 if (bF && !bT) {
-                    Action<Set<SolutionDose>,Boolean> resend = new Action<>(Action.Direction.ADD,vaccineDoses,retFrom);
-                    from.submitAction(resend);
-                    Result<Boolean> res = resend.getResult();
-                    return false;
+                    while (true) {
+                        SolutionResult<Boolean> resultAddBack = new SolutionResult<>();
+                        Action<Set<SolutionDose>, Boolean> resend = new Action<>(Action.Direction.ADD, vaccineDoses, resultAddBack);
+                        from.submitAction(resend);
+                        if (!resultAddBack.getResult())
+                            continue;
+                        return false;
+                    }
                 }
-                if (!(bF && bT)) {
-                    return false;
-                }
-                return true;
+                throw new Error("Dead code");
             }
         };
         return waitResult.getResult();
